@@ -69,8 +69,8 @@ The release is automated by [the GitHub Actions workflow](.github/workflows/rele
 
 ```powershell
 # Update <Version> in the project file, commit to main, and push the matching tag.
-git tag v5.1.0
-git push origin v5.1.0
+git tag v1.0.0.0 -m "Release v1.0.0.0"
+git push origin v1.0.0.0
 ```
 
 The `vX.Y.Z` tag must exactly match the project version. The workflow publishes the plugin, creates a release ZIP with the published files at its root, creates a GitHub Release with generated notes, calculates the MD5 checksum, and updates `manifest.json` plus the latest-release section above on `main`.
