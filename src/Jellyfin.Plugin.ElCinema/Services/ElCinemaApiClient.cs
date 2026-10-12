@@ -528,12 +528,20 @@ public class ElCinemaApiClient
             var mainTitle = document.QuerySelector("h1") ?? document.QuerySelector("h2") ?? document.QuerySelector(".title");
             if (mainTitle != null)
             {
-                var name = Regex.Replace(mainTitle.TextContent, @"\(\s*\d{4}\s*[-\u2013\u2014]\s*\d{4}\s*\)", string.Empty);
+                var name = mainTitle.QuerySelectorAll("span.left")
+                    .Select(span => Regex.Replace(span.TextContent, @"\s+", " ").Trim())
+                    .FirstOrDefault(text => !string.IsNullOrWhiteSpace(text)
+                        && !Regex.IsMatch(text, @"^\(?\s*\d{4}\s*[-\u2013\u2014]\s*\d{4}\s*\)?$"));
+                name ??= Regex.Replace(mainTitle.TextContent, @"\(\s*\d{4}\s*[-\u2013\u2014]\s*\d{4}\s*\)", string.Empty);
                 name = Regex.Replace(name, @"\s+", " ").Trim();
+                var displayName = mainTitle.QuerySelector("span.right, span[dir='ltr']")?.TextContent;
+                displayName = string.IsNullOrWhiteSpace(displayName)
+                    ? name
+                    : Regex.Replace(displayName, @"\s+", " ").Trim();
                 if (!string.IsNullOrWhiteSpace(name))
                 {
                     person.Name = name;
-                    person.DisplayName = name;
+                    person.DisplayName = displayName;
                 }
             }
 
