@@ -98,13 +98,15 @@ public class ElCinemaPersonProvider : IRemoteMetadataProvider<Person, PersonLook
         }
 
         _logger.LogInformation(
-            "elCinema person '{PersonName}' ({PersonId}) overview present: {HasOverview}; overview: {Overview}; birth place present: {HasBirthPlace}; birth place: {BirthPlace}",
+            "elCinema person '{PersonName}' ({PersonId}) overview present: {HasOverview}; overview: {Overview}; birth place present: {HasBirthPlace}; birth place: {BirthPlace} ; name present: {HasName}; name: {Name}",
             person.Name,
             person.PersonId,
             !string.IsNullOrWhiteSpace(person.Biography),
             person.Biography,
             !string.IsNullOrWhiteSpace(person.BirthPlace),
-            person.BirthPlace);
+            person.BirthPlace,
+            !string.IsNullOrWhiteSpace(person.Name),
+            person.Name);
 
         result.Item.Name = string.IsNullOrWhiteSpace(person.Name) ? info.Name : person.Name;
         result.Item.Overview = person.Biography;

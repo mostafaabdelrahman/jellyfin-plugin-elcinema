@@ -528,7 +528,8 @@ public class ElCinemaApiClient
             var mainTitle = document.QuerySelector("h1") ?? document.QuerySelector("h2") ?? document.QuerySelector(".title");
             if (mainTitle != null)
             {
-                var name = mainTitle.TextContent.Trim();
+                var name = Regex.Replace(mainTitle.TextContent, @"\(\s*\d{4}\s*[-\u2013\u2014]\s*\d{4}\s*\)", string.Empty);
+                name = Regex.Replace(name, @"\s+", " ").Trim();
                 if (!string.IsNullOrWhiteSpace(name))
                 {
                     person.Name = name;
