@@ -1,4 +1,9 @@
-# Jellyfin elCinema Plugin
+<h1 align="center">Jellyfin elCinema Plugin</h1>
+<p align="center">
+<img alt="Plugin Banner" src="images/elcinema-plugin.jpg"/>
+</p>
+
+## About
 
 A Jellyfin metadata and image plugin for Egyptian and Arabic movies indexed by [elCinema](https://elcinema.com/). It retrieves movie information, artwork, and linked people directly from elCinema.
 
