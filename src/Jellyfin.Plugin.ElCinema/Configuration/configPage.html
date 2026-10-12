@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>elCinema Plugin Configuration</title>
+  </head>
+  <body>
+    <div
+      id="ElCinemaConfigurationPage"
+      data-role="page"
+      class="page type-interior pluginConfigurationPage"
+      data-require="emby-input,emby-button,emby-checkbox"
+    >
+      <div data-role="content">
+        <div class="content-primary">
+          <form id="elCinemaConfigForm">
+            <div class="sectionTitleContainer flex align-items-center">
+              <h2 class="sectionTitle">elCinema Settings</h2>
+            </div>
+
+            <div class="checkboxContainer checkboxContainer-withDescription">
+              <label>
+                <input
+                  id="chkPreferArabicTitle"
+                  type="checkbox"
+                  is="emby-checkbox"
+                />
+                <span>Prefer Arabic Title</span>
+              </label>
+              <div class="fieldDescription checkboxFieldDescription">
+                If enabled, Arabic title is used as the primary title and
+                English transliteration is used as original/sort title.
+              </div>
+            </div>
+
+            <div class="checkboxContainer checkboxContainer-withDescription">
+              <label>
+                <input
+                  id="chkImportActors"
+                  type="checkbox"
+                  is="emby-checkbox"
+                />
+                <span>Import Actors</span>
+              </label>
+            </div>
+
+            <div class="checkboxContainer checkboxContainer-withDescription">
+              <label>
+                <input
+                  id="chkImportDirectors"
+                  type="checkbox"
+                  is="emby-checkbox"
+                />
+                <span>Import Directors</span>
+              </label>
+            </div>
+
+            <div class="checkboxContainer checkboxContainer-withDescription">
+              <label>
+                <input
+                  id="chkImportWriters"
+                  type="checkbox"
+                  is="emby-checkbox"
+                />
+                <span>Import Writers</span>
+              </label>
+            </div>
+
+            <div class="inputContainer">
+              <label class="inputLabel inputLabelUnfocused" for="txtUserAgent"
+                >User-Agent</label
+              >
+              <input
+                id="txtUserAgent"
+                type="text"
+                is="emby-input"
+                class="emby-input"
+              />
+              <div class="fieldDescription">
+                HTTP User-Agent sent to elcinema.com.
+              </div>
+            </div>
+
+            <div>
+              <button
+                is="emby-button"
+                type="submit"
+                class="raised button-submit block emby-button"
+              >
+                <span>Save</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <script type="text/javascript">
+        var ElCinemaPluginConfig = {
+          pluginUniqueId: '2b09a9db-923f-4e09-9ec6-8968f9a2de98',
+        };
+
+        document
+          .querySelector('#ElCinemaConfigurationPage')
+          .addEventListener('pageshow', function () {
+            Dashboard.showLoadingMsg();
+            ApiClient.getPluginConfiguration(
+              ElCinemaPluginConfig.pluginUniqueId,
+            ).then(function (config) {
+              document.querySelector('#chkPreferArabicTitle').checked =
+                config.PreferArabicTitle !== false;
+              document.querySelector('#chkImportActors').checked =
+                config.ImportActors !== false;
+              document.querySelector('#chkImportDirectors').checked =
+                config.ImportDirectors !== false;
+              document.querySelector('#chkImportWriters').checked =
+                config.ImportWriters !== false;
+              document.querySelector('#txtUserAgent').value =
+                config.UserAgent || 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)';
+              Dashboard.hideLoadingMsg();
+            });
+          });
+
+        document
+          .querySelector('#elCinemaConfigForm')
+          .addEventListener('submit', function (e) {
+            e.preventDefault();
+            Dashboard.showLoadingMsg();
+
+            ApiClient.getPluginConfiguration(
+              ElCinemaPluginConfig.pluginUniqueId,
+            ).then(function (config) {
+              config.PreferArabicTitle = document.querySelector(
+                '#chkPreferArabicTitle',
+              ).checked;
+              config.ImportActors =
+                document.querySelector('#chkImportActors').checked;
+              config.ImportDirectors = document.querySelector(
+                '#chkImportDirectors',
+              ).checked;
+              config.ImportWriters =
+                document.querySelector('#chkImportWriters').checked;
+              config.UserAgent = document.querySelector('#txtUserAgent').value;
+
+              ApiClient.updatePluginConfiguration(
+                ElCinemaPluginConfig.pluginUniqueId,
+                config,
+              ).then(function (result) {
+                Dashboard.processPluginConfigurationUpdateResult(result);
+              });
+            });
+
+            return false;
+          });
+      </script>
+    </div>
+  </body>
+</html>

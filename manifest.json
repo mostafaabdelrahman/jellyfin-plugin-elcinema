@@ -1,0 +1,20 @@
+[
+  {
+    "guid": "2b09a9db-923f-4e09-9ec6-8968f9a2de98",
+    "name": "elCinema",
+    "description": "Jellyfin movie metadata and image providers for elcinema.com.",
+    "overview": "Fetch Arabic and transliterated movie metadata, posters, genres, credits, and person images from elCinema.",
+    "owner": "mostafaabdelrahman",
+    "category": "MoviesAndShows",
+    "versions": [
+      {
+        "version": "5.0.0.0",
+        "changelog": "Initial public release.",
+        "targetAbi": "10.11.9.0",
+        "sourceUrl": "https://github.com/<GITHUB_OWNER>/<GITHUB_REPOSITORY>/releases/download/v5.0.0/Jellyfin.Plugin.ElCinema_5.0.0.0.zip",
+        "checksum": "REPLACE_WITH_32_CHARACTER_MD5_CHECKSUM",
+        "timestamp": "REPLACE_WITH_UTC_RELEASE_TIMESTAMP"
+      }
+    ]
+  }
+]
