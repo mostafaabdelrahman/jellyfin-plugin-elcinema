@@ -35,7 +35,7 @@ After a release has been published, install **elCinema**, restart Jellyfin, enab
 ## Latest Release
 
 <!-- RELEASE_INFO_START -->
-**Latest release:** [v1.4.0.0](https://github.com/mostafaabdelrahman/jellyfin-plugin-elcinema/releases/tag/v1.4.0.0) (`1.4.0.0`; Jellyfin ABI `10.11.9.0`).
+**Latest release:** [v1.5.0.0](https://github.com/mostafaabdelrahman/jellyfin-plugin-elcinema/releases/tag/v1.5.0.0) (`1.5.0.0`; Jellyfin ABI `10.11.9.0`).
 
 **Plugin repository manifest:** [https://raw.githubusercontent.com/mostafaabdelrahman/jellyfin-plugin-elcinema/main/manifest.json](https://raw.githubusercontent.com/mostafaabdelrahman/jellyfin-plugin-elcinema/main/manifest.json)
 <!-- RELEASE_INFO_END -->
