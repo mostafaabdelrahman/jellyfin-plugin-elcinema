@@ -97,6 +97,13 @@ public class ElCinemaPersonProvider : IRemoteMetadataProvider<Person, PersonLook
             return result;
         }
 
+        _logger.LogInformation(
+            "elCinema person '{PersonName}' ({PersonId}) overview present: {HasOverview}; overview: {Overview}",
+            person.Name,
+            person.PersonId,
+            !string.IsNullOrWhiteSpace(person.Biography),
+            person.Biography);
+
         result.Item.Name = string.IsNullOrWhiteSpace(person.Name) ? info.Name : person.Name;
         result.Item.Overview = person.Biography;
         result.Item.SetProviderId(ElCinemaPersonExternalId.ProviderIdKey, person.PersonId);

@@ -19,6 +19,17 @@ public class ElCinemaExternalUrlProvider : IExternalUrlProvider
     /// <inheritdoc />
     public IEnumerable<string> GetExternalUrls(BaseItem item)
     {
+        if (item is Person person)
+        {
+            var personId = person.GetProviderId(ElCinemaPersonExternalId.ProviderIdKey);
+            if (string.IsNullOrWhiteSpace(personId))
+            {
+                return Array.Empty<string>();
+            }
+
+            return new[] { $"https://elcinema.com/person/{Uri.EscapeDataString(personId)}/" };
+        }
+
         if (item is not Movie)
         {
             return Array.Empty<string>();
