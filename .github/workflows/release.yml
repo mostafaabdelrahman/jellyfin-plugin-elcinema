@@ -3,7 +3,7 @@ name: Release plugin
 on:
   push:
     tags:
-      - 'v*.*.*'
+      - 'v*.*.*.*'
   workflow_dispatch:
     inputs:
       tag:
@@ -25,7 +25,7 @@ jobs:
       - name: Check out tagged source
         uses: actions/checkout@v6
         with:
-          ref: ${{ github.ref }}
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref }}
           fetch-depth: 0
 
       - name: Set up .NET
@@ -36,11 +36,14 @@ jobs:
       - name: Validate tag and read project metadata
         id: metadata
         shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_TAG: ${{ inputs.tag }}
         run: |
           set -euo pipefail
           # if workflow_dispatch, use the input tag; otherwise, use the pushed tag
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            TAG="${{ github.event.inputs.tag }}"
+          if [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
+            TAG="$INPUT_TAG"
           else
             TAG="${GITHUB_REF_NAME}"
           fi
@@ -76,10 +79,10 @@ jobs:
           PY
           )"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "assembly_version=${VERSION}.0" >> "$GITHUB_OUTPUT"
+          echo "assembly_version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "target_abi=$TARGET_ABI" >> "$GITHUB_OUTPUT"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
-          echo "zip_name=Jellyfin.Plugin.ElCinema_${VERSION}.0.zip" >> "$GITHUB_OUTPUT"
+          echo "zip_name=Jellyfin.Plugin.ElCinema_${VERSION}.zip" >> "$GITHUB_OUTPUT"
 
       - name: Publish plugin
         shell: bash

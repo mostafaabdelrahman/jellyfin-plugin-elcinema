@@ -73,7 +73,7 @@ git tag v1.0.0.0 -m "Release v1.0.0.0"
 git push origin v1.0.0.0
 ```
 
-The `vX.Y.Z` tag must exactly match the project version. The workflow publishes the plugin, creates a release ZIP with the published files at its root, creates a GitHub Release with generated notes, calculates the MD5 checksum, and updates `manifest.json` plus the latest-release section above on `main`.
+The four-part `vX.Y.Z.W` tag must exactly match the project version. The workflow publishes the plugin, creates a release ZIP with the published files at its root, creates a GitHub Release with generated notes, calculates the MD5 checksum, and updates `manifest.json` plus the latest-release section above on `main`.
 
 ## Rate Limiting
 
