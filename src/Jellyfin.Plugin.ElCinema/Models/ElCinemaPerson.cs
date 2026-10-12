@@ -43,6 +43,11 @@ public class ElCinemaPerson
     public string BirthDate { get; set; } = string.Empty;
 
     /// <summary>
+    /// Gets or sets the birth place if available.
+    /// </summary>
+    public string BirthPlace { get; set; } = string.Empty;
+
+    /// <summary>
     /// Gets or sets the nationality text if available.
     /// </summary>
     public string Nationality { get; set; } = string.Empty;

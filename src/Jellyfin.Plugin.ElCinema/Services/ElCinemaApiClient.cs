@@ -540,13 +540,29 @@ public class ElCinemaApiClient
                 ?? document.QuerySelector("meta[property='og:image']")?.GetAttribute("content")
                 ?? string.Empty;
 
-            var biography = document.QuerySelector(".intro-box p.no-margin") ?? document.QuerySelector(".intro-box p");
-            if (biography != null)
+            var biographyHeading = document.QuerySelectorAll("h3")
+                .FirstOrDefault(element => string.Equals(element.TextContent.Trim(), "السيرة الذاتية", StringComparison.Ordinal));
+            var biographyParagraphs = new List<string>();
+            for (var sibling = biographyHeading?.NextElementSibling; sibling != null && sibling.LocalName != "ul"; sibling = sibling.NextElementSibling)
             {
-                var readMore = biography.QuerySelector("#read-more");
-                readMore?.Remove();
-                person.Biography = Regex.Replace(biography.TextContent, @"\s+", " ").Trim();
+                if (!string.Equals(sibling.LocalName, "p", StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                sibling.QuerySelector("#read-more")?.Remove();
+                var paragraph = Regex.Replace(sibling.TextContent, @"\s+", " ").Trim();
+                if (!string.IsNullOrWhiteSpace(paragraph))
+                {
+                    biographyParagraphs.Add(paragraph);
+                }
             }
+
+            person.Biography = string.Join(" ", biographyParagraphs);
+
+            var birthPlaceRow = document.QuerySelectorAll("ul.list-title")
+                .FirstOrDefault(row => string.Equals(row.Children.FirstOrDefault()?.TextContent.Trim(), "بلد الميلاد:", StringComparison.Ordinal));
+            person.BirthPlace = birthPlaceRow?.Children.Skip(1).FirstOrDefault()?.TextContent.Trim() ?? string.Empty;
 
             var nationalityRow = document.QuerySelectorAll(".intro-box li").FirstOrDefault(element => element.TextContent.Contains("الموطن:", StringComparison.Ordinal) || element.TextContent.Contains("الجنسية:", StringComparison.Ordinal));
             if (nationalityRow != null)
