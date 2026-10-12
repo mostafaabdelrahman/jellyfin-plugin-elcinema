@@ -21,20 +21,19 @@ The plugin is built against Jellyfin `10.11.9` APIs. Use a release built for the
 
 ## Install From a Plugin Repository
 
-1. Publish this repository and release the plugin archive described under [Releasing](#releasing).
-2. Replace the GitHub placeholders in `manifest.json`, including the release URL, owner, checksum, and timestamp.
-3. Host the manifest at the repository root on the default branch.
-4. In Jellyfin, open **Dashboard > Plugins > Repositories**, add the raw URL to `manifest.json`, save, and install **elCinema**.
-5. Restart Jellyfin.
-6. Enable elCinema as a movie metadata downloader in the library settings, then refresh the movie metadata.
+Add the plugin repository in **Dashboard > Plugins > Repositories** using this manifest URL:
 
-The repository URL will have this form:
+`https://raw.githubusercontent.com/mostafaabdelrahman/jellyfin-plugin-elcinema/main/manifest.json`
 
-```text
-https://raw.githubusercontent.com/<GITHUB_OWNER>/<GITHUB_REPOSITORY>/main/manifest.json
-```
+After a release has been published, install **elCinema**, restart Jellyfin, enable it as a movie metadata downloader in the library settings, and refresh movie metadata.
 
-The manifest in this repository is a publishing scaffold until its placeholders point to a real release.
+## Latest Release
+
+<!-- RELEASE_INFO_START -->
+No release has been published yet. See [Releasing](#releasing).
+
+**Plugin repository manifest:** https://raw.githubusercontent.com/mostafaabdelrahman/jellyfin-plugin-elcinema/main/manifest.json
+<!-- RELEASE_INFO_END -->
 
 ## Manual Installation
 
@@ -66,17 +65,15 @@ dotnet publish src/Jellyfin.Plugin.ElCinema/Jellyfin.Plugin.ElCinema.csproj -c R
 
 ## Releasing
 
-1. Set the project version in `src/Jellyfin.Plugin.ElCinema/Jellyfin.Plugin.ElCinema.csproj`.
-2. Publish the project and zip the contents of `artifacts/publish` so the plugin DLL and its dependencies are at the archive root.
-3. Upload the archive to a GitHub release whose tag matches the manifest URL, for example `v5.0.0`.
-4. Calculate the archive's MD5 checksum. Jellyfin's plugin repository manifest uses a 32-character hexadecimal checksum:
+The release is automated by [the GitHub Actions workflow](.github/workflows/release.yml). To publish a new version:
 
 ```powershell
-(Get-FileHash .\Jellyfin.Plugin.ElCinema_5.0.0.0.zip -Algorithm MD5).Hash.ToLowerInvariant()
+# Update <Version> in the project file, commit to main, and push the matching tag.
+git tag v5.1.0
+git push origin v5.1.0
 ```
 
-5. Update the corresponding version entry in `manifest.json` with the actual release URL, checksum, changelog, and UTC timestamp.
-6. Commit and publish the updated manifest.
+The `vX.Y.Z` tag must exactly match the project version. The workflow publishes the plugin, creates a release ZIP with the published files at its root, creates a GitHub Release with generated notes, calculates the MD5 checksum, and updates `manifest.json` plus the latest-release section above on `main`.
 
 ## Rate Limiting
 

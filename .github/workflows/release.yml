@@ -1,0 +1,148 @@
+name: Release plugin
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out tagged source
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.ref }}
+          fetch-depth: 0
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Validate tag and read project metadata
+        id: metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG="${GITHUB_REF_NAME}"
+          if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Tag must use semantic version format vX.Y.Z, got: $TAG" >&2
+            exit 1
+          fi
+          VERSION="${TAG#v}"
+          PROJECT_FILE="src/Jellyfin.Plugin.ElCinema/Jellyfin.Plugin.ElCinema.csproj"
+          PROJECT_VERSION="$(python3 - "$PROJECT_FILE" <<'PY'
+          import sys
+          import xml.etree.ElementTree as ET
+          root = ET.parse(sys.argv[1]).getroot()
+          print(root.findtext(".//Version", default=""))
+          PY
+          )"
+          if [[ "$VERSION" != "$PROJECT_VERSION" ]]; then
+            echo "Release tag $TAG does not match project version $PROJECT_VERSION" >&2
+            exit 1
+          fi
+          TARGET_ABI="$(python3 - "$PROJECT_FILE" <<'PY'
+          import sys
+          import xml.etree.ElementTree as ET
+          root = ET.parse(sys.argv[1]).getroot()
+          for package in root.findall(".//PackageReference"):
+              if package.get("Include") == "Jellyfin.Controller":
+                  version = package.get("Version", "")
+                  parts = version.split(".")
+                  print(version + ".0" if len(parts) == 3 else version)
+                  break
+          else:
+              raise SystemExit("Jellyfin.Controller package version not found")
+          PY
+          )"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "assembly_version=${VERSION}.0" >> "$GITHUB_OUTPUT"
+          echo "target_abi=$TARGET_ABI" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "zip_name=Jellyfin.Plugin.ElCinema_${VERSION}.0.zip" >> "$GITHUB_OUTPUT"
+
+      - name: Publish plugin
+        shell: bash
+        run: >-
+          dotnet publish
+          src/Jellyfin.Plugin.ElCinema/Jellyfin.Plugin.ElCinema.csproj
+          --configuration Release
+          --output "$RUNNER_TEMP/plugin-publish"
+          -p:Version=${{ steps.metadata.outputs.version }}
+          -p:AssemblyVersion=${{ steps.metadata.outputs.assembly_version }}
+          -p:FileVersion=${{ steps.metadata.outputs.assembly_version }}
+
+      - name: Package plugin and calculate checksum
+        id: package
+        shell: bash
+        run: |
+          set -euo pipefail
+          ZIP_NAME="${{ steps.metadata.outputs.zip_name }}"
+          ZIP_PATH="$GITHUB_WORKSPACE/$ZIP_NAME"
+          cd "$RUNNER_TEMP/plugin-publish"
+          zip -qr "$ZIP_PATH" .
+          CHECKSUM="$(md5sum "$ZIP_PATH" | cut -d ' ' -f 1)"
+          TIMESTAMP="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          echo "zip_path=$ZIP_PATH" >> "$GITHUB_OUTPUT"
+          echo "zip_name=$ZIP_NAME" >> "$GITHUB_OUTPUT"
+          echo "checksum=$CHECKSUM" >> "$GITHUB_OUTPUT"
+          echo "timestamp=$TIMESTAMP" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          gh release create "${{ steps.metadata.outputs.tag }}" \
+            "${{ steps.package.outputs.zip_path }}" \
+            --title "elCinema ${{ steps.metadata.outputs.version }}" \
+            --generate-notes
+          gh release view "${{ steps.metadata.outputs.tag }}" --json body --jq .body > "$RUNNER_TEMP/release-notes.md"
+
+      - name: Check out main for catalog metadata
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: metadata
+          persist-credentials: true
+
+      - name: Update plugin manifest and README
+        working-directory: metadata
+        env:
+          RELEASE_TAG: ${{ steps.metadata.outputs.tag }}
+          PLUGIN_VERSION: ${{ steps.metadata.outputs.assembly_version }}
+          TARGET_ABI: ${{ steps.metadata.outputs.target_abi }}
+          REPOSITORY_OWNER: ${{ github.repository_owner }}
+          SOURCE_URL: https://github.com/${{ github.repository }}/releases/download/${{ steps.metadata.outputs.tag }}/${{ steps.package.outputs.zip_name }}
+          RELEASE_URL: https://github.com/${{ github.repository }}/releases/tag/${{ steps.metadata.outputs.tag }}
+          MANIFEST_URL: https://raw.githubusercontent.com/${{ github.repository }}/main/manifest.json
+          CHECKSUM: ${{ steps.package.outputs.checksum }}
+          RELEASE_TIMESTAMP: ${{ steps.package.outputs.timestamp }}
+          CHANGELOG_PATH: ${{ runner.temp }}/release-notes.md
+        run: python3 scripts/update_release_metadata.py
+
+      - name: Commit catalog metadata
+        working-directory: metadata
+        env:
+          RELEASE_TAG: ${{ steps.metadata.outputs.tag }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add manifest.json README.md
+          if git diff --cached --quiet; then
+            echo "Release metadata is already current."
+            exit 0
+          fi
+          git commit -m "chore: update release metadata for ${RELEASE_TAG}"
+          git push origin HEAD:main
