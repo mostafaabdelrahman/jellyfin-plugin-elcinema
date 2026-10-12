@@ -9,6 +9,14 @@
     "imageUrl": "https://raw.githubusercontent.com/mostafaabdelrahman/jellyfin-plugin-elcinema/main/images/elcinema-plugin.jpg",
     "versions": [
       {
+        "version": "1.1.0.0",
+        "changelog": "**Full Changelog**: https://github.com/mostafaabdelrahman/jellyfin-plugin-elcinema/compare/v1.0.0.0...v1.1.0.0",
+        "targetAbi": "10.11.9.0",
+        "sourceUrl": "https://github.com/mostafaabdelrahman/jellyfin-plugin-elcinema/releases/download/v1.1.0.0/Jellyfin.Plugin.ElCinema_1.1.0.0.zip",
+        "checksum": "93b6679068870610773c9e9c45ee0645",
+        "timestamp": "2026-10-12T18:25:36Z"
+      },
+      {
         "version": "1.0.0.0",
         "changelog": "**Full Changelog**: https://github.com/mostafaabdelrahman/jellyfin-plugin-elcinema/commits/v1.0.0.0",
         "targetAbi": "10.11.9.0",
