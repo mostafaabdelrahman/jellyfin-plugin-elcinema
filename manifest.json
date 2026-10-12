@@ -6,6 +6,7 @@
     "overview": "Fetch Arabic and transliterated movie metadata, posters, genres, credits, and person images from elCinema.",
     "owner": "mostafaabdelrahman",
     "category": "MoviesAndShows",
+    "imageUrl": "https://raw.githubusercontent.com/mostafaabdelrahman/jellyfin-plugin-elcinema/main/images/elcinema-plugin.jpg",
     "versions": [
       {
         "version": "1.0.0.0",
