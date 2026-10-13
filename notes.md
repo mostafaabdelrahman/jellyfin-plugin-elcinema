@@ -41,3 +41,12 @@
 }
 
 ```
+
+
+## Usefull API endpoints
+List actors
+
+https://jellyfin.home.mostafaahmed.com/Persons?personTypes=Actor&limit=5000&startIndex=0&Fields=ProviderIds
+
+https://jellyfin.home.mostafaahmed.com/Persons?limit=5000&startIndex=0&Fields=ProviderIds
+
